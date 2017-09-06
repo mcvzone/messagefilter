@@ -47,8 +47,21 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.mainListBt).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), FilterListActivity.class);
-                startActivity(intent);
+                Cursor cursor = dml.selectFilterCount();
+
+                if( cursor.moveToNext() ){
+                    int count = cursor.getInt(0);
+
+                    Log.d("MYLOG", "FILTER Count : " + count);
+
+                    if( count > 0 ){
+                        Intent intent = new Intent(getApplicationContext(), FilterListActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(MainActivity.this, "추가된 번호가 없습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
             }
         });
 
@@ -68,11 +81,16 @@ public class MainActivity extends AppCompatActivity {
                     if( cursor != null && cursor.moveToNext() ){
                         Toast.makeText(getApplicationContext(), sSender + " 이미 추가된 번호 입니다.", Toast.LENGTH_SHORT).show();
                     } else {
-                        int result = getSmsList(sSender);
+                        Uri inbox = Uri.parse("content://sms/inbox");
+                        cursor = getApplicationContext().getContentResolver().query(inbox, null, null, null, null);
 
-                        if (result > 0) {
+                        int count = cursor.getCount();
+                        //int result = getSmsList(sSender);
+
+                        if (count > 0) {
                             dml.insertFilterNumber(new Object[]{sSender});
-                            Toast.makeText(getApplicationContext(), sSender + "의 " + result + "건이 추가 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                            //Toast.makeText(getApplicationContext(), sSender + "의 " + count + "건이 추가 되었습니다.", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getApplicationContext(), sSender + "로 수신된 메시지가 없습니다.", Toast.LENGTH_SHORT).show();
                         }
@@ -120,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.mm.dd HH:mm:ss", Locale.KOREA);
         long timestamp;
         int count=0;
+
+        Log.d("MYLOG", "total count : " + cur.getCount());
 
         while (cur.moveToNext()) {
             sNumber = cur.getString(cur.getColumnIndex("address"));

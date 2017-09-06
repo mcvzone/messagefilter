@@ -18,6 +18,10 @@ public class DML {
         return database.rawQuery("SELECT SENDER FROM FILTER_LIST WHERE SENDER = ?", param);
     }
 
+    public Cursor selectFilterCount(){
+        return database.rawQuery("SELECT COUNT(*) CNT FROM FILTER_LIST", null);
+    }
+
     public Cursor selectFilterList(){
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT SENDER, COUNT(*) CNT FROM SMS_LIST GROUP BY SENDER");
